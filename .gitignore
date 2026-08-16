@@ -1,0 +1,4 @@
+# Placeholder: Git ignore rules for the project.
+__pycache__/
+.env
+node_modules/
