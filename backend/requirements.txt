@@ -24,7 +24,7 @@ python-multipart
 # Configuration
 python-dotenv
 
-# Testing
+# Testing  
 pytest
 pytest-asyncio
 httpx
