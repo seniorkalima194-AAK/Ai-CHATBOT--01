@@ -1,44 +1,74 @@
-# Placeholder: ingestion workflow for processing and indexing documents.
+from pathlib import Path
 import json
 import logging
-from pathlib import Path
 
 from app.documents.pdf_parser import extract_pdf
 from app.documents.cleaner import clean_text
 from app.documents.chunker import chunk_text
 
-logger = logging.getLogger(__name__)
 
-RAW_DIR = Path("data/raw")
+# --------------------------------------------------
+# CONFIGURATION
+# --------------------------------------------------
+
+RAW_DIR = Path("data/raw/educational_materials")
+
 PROCESSED_DIR = Path("data/processed")
 
-# Default values.
-# If your project already has app.core.config,
-# replace these with settings from config.py.
 CHUNK_SIZE = 500
+
 CHUNK_OVERLAP = 50
 
 
+# --------------------------------------------------
+# LOGGING
+# --------------------------------------------------
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s: %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
+
+# --------------------------------------------------
+# PROCESS ONE PDF
+# --------------------------------------------------
+
 def process_pdf(pdf_path: Path) -> list[dict]:
-    """
-    Process one PDF:
-        PDF -> extraction -> cleaning -> chunking
-    """
+
+    logger.info(
+        "Processing document: %s",
+        pdf_path.name,
+    )
 
     pages = extract_pdf(pdf_path)
 
     processed_chunks = []
 
     for page in pages:
-        cleaned = clean_text(page["text"])
+
+        # ------------------------------------------
+        # CLEAN TEXT
+        # ------------------------------------------
+
+        cleaned = clean_text(
+            page["text"]
+        )
 
         if not cleaned:
             logger.warning(
-                "Empty cleaned text: %s page %s",
-                page["source"],
+                "Empty page %s in %s",
                 page["page"],
+                page["source"],
             )
+
             continue
+
+        # ------------------------------------------
+        # CREATE CHUNKS
+        # ------------------------------------------
 
         chunks = chunk_text(
             cleaned,
@@ -46,8 +76,12 @@ def process_pdf(pdf_path: Path) -> list[dict]:
             overlap=CHUNK_OVERLAP,
         )
 
+        # ------------------------------------------
+        # STORE CHUNKS
+        # ------------------------------------------
 
         for chunk in chunks:
+
             processed_chunks.append(
                 {
                     "text": chunk,
@@ -56,55 +90,84 @@ def process_pdf(pdf_path: Path) -> list[dict]:
                 }
             )
 
-        return processed_chunks
+            return processed_chunks
 
 
-def ingest_documents(
-    raw_dir: Path = RAW_DIR,
-    output_dir: Path = PROCESSED_DIR,
-) -> None:
-    """
-    Process all PDF files inside raw_dir.
-    """
+# --------------------------------------------------
+# PROCESS ALL PDFs
+# --------------------------------------------------
 
-    output_dir.mkdir(
+def ingest_documents():
+
+    # Create output directory
+    PROCESSED_DIR.mkdir(
         parents=True,
         exist_ok=True,
     )
 
-    pdf_files = list(raw_dir.rglob("*.pdf"))
+    # Check input directory
+    if not RAW_DIR.exists():
 
-    if not pdf_files:
-        logger.warning(
-            "No PDF files found in %s",
-            raw_dir,
+        logger.error(
+            "Input directory does not exist: %s",
+            RAW_DIR,
         )
+
         return
 
-    for pdf_path in pdf_files:
-        logger.info(
-            "Processing: %s",
-            pdf_path,
+    # Find PDFs
+    pdf_files = list(
+        RAW_DIR.glob("*.pdf")
+    )
+
+    if not pdf_files:
+
+        logger.warning(
+            "No PDF files found in %s",
+            RAW_DIR,
         )
 
+        return
+
+    logger.info(
+        "Found %s PDF file(s)",
+        len(pdf_files),
+    )
+
+    # ------------------------------------------
+    # PROCESS EACH PDF
+    # ------------------------------------------
+
+    for pdf_path in pdf_files:
+
         try:
-            chunks = process_pdf(pdf_path)
+
+            chunks = process_pdf(
+                pdf_path
+            )
 
             if not chunks:
+
                 logger.warning(
                     "No chunks generated for %s",
                     pdf_path.name,
                 )
+
                 continue
 
-            output_file = output_dir / (
-                pdf_path.stem + ".json"
+            # Output filename
+            output_file = (
+                PROCESSED_DIR
+                / f"{pdf_path.stem}.json"
             )
 
-            with output_file.open(
+            # Save JSON
+            with open(
+                output_file,
                 "w",
                 encoding="utf-8",
             ) as file:
+
                 json.dump(
                     chunks,
                     file,
@@ -113,23 +176,24 @@ def ingest_documents(
                 )
 
             logger.info(
-                "Saved %s chunks to %s",
+                "Successfully saved %s chunks -> %s",
                 len(chunks),
                 output_file,
             )
 
-        except Exception as exc:
-            logger.warning(
-                "Skipping malformed/unreadable PDF %s: %s",
-                pdf_path,
-                exc,
+        except Exception as error:
+
+            logger.error(
+                "Failed to process %s: %s",
+                pdf_path.name,
+                error,
             )
 
 
+# --------------------------------------------------
+# MAIN
+# --------------------------------------------------
+
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(levelname)s: %(message)s",
-    )
 
     ingest_documents()
