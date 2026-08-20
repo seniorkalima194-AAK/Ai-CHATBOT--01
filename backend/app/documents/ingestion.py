@@ -1,3 +1,4 @@
+# Placeholder: ingestion workflow for processing and indexing documents.
 from pathlib import Path
 import json
 import logging
