@@ -1,5 +1,4 @@
-# Placeholder: end"""E
-
+# Placeholder: end-to-end RAG pipeline orchestration.
 from __future__ import annotations
 
 from dataclasses import dataclass
