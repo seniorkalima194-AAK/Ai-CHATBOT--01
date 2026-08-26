@@ -63,5 +63,5 @@ def get_settings() -> Settings:
     return Settings()
 
 
-# This runs during startup and fails immediately for missing/invalid
-settings.settings = get_settings()
+# This runs during startup and fails immediately for missing/invalid settings.
+settings = get_settings()
