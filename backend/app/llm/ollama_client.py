@@ -1,3 +1,4 @@
+# Placeholder: client wrapper for the Ollama LLM integration.
 from typing import Any
 
 import ollama
