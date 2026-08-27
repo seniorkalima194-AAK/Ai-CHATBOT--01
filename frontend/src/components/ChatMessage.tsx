@@ -1,4 +1,4 @@
-import { HandIcon } from 'lucide-react';
+import { HandIcon } from 'lucide-react'; 
 
 // 1. Explicitly define the props structure
 interface ChatMessageProps {
