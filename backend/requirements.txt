@@ -32,4 +32,4 @@ httpx
 # Logging
 python-json-logger
 
-structlog
+structlog    
