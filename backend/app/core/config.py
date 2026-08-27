@@ -38,6 +38,11 @@ class Settings(BaseSettings):
     chunk_overlap: int = Field(..., ge=0)
     top_k: int = Field(..., gt=0)
 
+        # Embeddings
+    embedding_model_name: str = Field(
+        default="sentence-transformers/all-MiniLM-L6-v2", min_length=1
+    )
+
     # Vector database
     vector_db_path: Path = Field(...)
 
