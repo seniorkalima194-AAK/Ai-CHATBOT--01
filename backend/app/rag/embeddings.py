@@ -17,9 +17,16 @@ DEFAULT_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 def get_embedding_model() -> SentenceTransformer:
     """Load the embedding model once per process."""
     logger.info("loading_embedding_model", model=DEFAULT_MODEL_NAME)
+
     model = SentenceTransformer(DEFAULT_MODEL_NAME)
+
     dim = model.get_embedding_dimension()
-    logger.info("embedding_model_ready", model=DEFAULT_MODEL_NAME, dimension=dim)
+    logger.info(
+        "embedding_model_ready",
+        model=DEFAULT_MODEL_NAME,
+        dimension=dim,
+    )
+
     return model
 
 
@@ -27,14 +34,34 @@ def embed_texts(texts: List[str]) -> List[List[float]]:
     """Embed multiple texts. Returns plain Python lists of floats."""
     if not texts:
         return []
+
     model = get_embedding_model()
+
     vectors = model.encode(
         texts,
         convert_to_numpy=True,
         show_progress_bar=False,
         normalize_embeddings=True,
     )
+
     return vectors.tolist()
+
+
+def embed_batch(texts: List[str]) -> List[List[float]]:
+    """Embed a batch of texts."""
+    return embed_texts(texts)
+
+
+def validate_dimension() -> None:
+    """Validate and log the embedding dimension."""
+    model = get_embedding_model()
+    dimension = model.get_embedding_dimension()
+
+    logger.info(
+        "embedding_dimension_validated",
+        model=DEFAULT_MODEL_NAME,
+        dimension=dimension,
+    )
 
 
 def embed_query(query: str) -> List[float]:
