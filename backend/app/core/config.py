@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from sentence_transformers import SentenceTransformer
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
