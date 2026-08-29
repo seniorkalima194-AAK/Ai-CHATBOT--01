@@ -50,6 +50,7 @@ env/
 backend/data/raw/**
 backend/data/processed/**
 backend/vector_db/
+
 *.pkl
 *.pt
 *.pth
