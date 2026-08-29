@@ -15,7 +15,7 @@ torch
 numpy
 
 # Vector Database
-chromadbgit@gigit@github.com:seniorkalima194-AAK/Ai-CHATBOT--01.gitthub.com:seniorkalima194-AAK/Ai-CHATBOT--01.git
+chromadb
 
 # Document Processing
 pypdf
