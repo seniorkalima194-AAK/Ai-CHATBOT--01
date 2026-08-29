@@ -8,9 +8,8 @@ from typing import List
 from sentence_transformers import SentenceTransformer
 
 from app.core.logging import logger
+from app.core.config import settings
 
-# Small, fast, fully offline model (downloads once, then works without internet)
-DEFAULT_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 
 @lru_cache(maxsize=1)

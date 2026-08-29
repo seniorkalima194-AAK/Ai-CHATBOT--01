@@ -33,4 +33,4 @@ class VectorRecord(BaseModel):
     id: str = Field(..., min_length=1)
     embedding: list[float]
     document: str
-    metadata: dict
+    metadata: dict   
